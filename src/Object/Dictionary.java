@@ -7,62 +7,138 @@ import java.io.BufferedWriter;
 import java.util.*;
 
 public class Dictionary {
-    public HashMap<String, String> dictionary;
-
-    Scanner scanner;
+    private TreeMap<String, String> dictionary;
+    private Scanner scanner;
+    private Queue<String> history = new LinkedList<String>();
+    private Queue<String> addedWords = new LinkedList<String>();
+    private HashMap<String, String> deletedWords = new HashMap<String, String>();
+    private HashMap<String, String> editedWords = new HashMap<String, String>();
 
     public Dictionary() {
-        dictionary = new HashMap<>();
+        dictionary = new TreeMap<>();
     }
 
-    public boolean add(String word, String meaning) {
-        if (word.isEmpty() || meaning.isEmpty() || dictionary.containsKey(word)) {
+    public boolean addNewSlang(String word, String meaning) {
+        if (word.isEmpty() || meaning.isEmpty() || dictionary.containsKey(word.toUpperCase())) {
             return false;
         }
 
         dictionary.put(word.toUpperCase(), meaning);
+        addedWords.add(word.toUpperCase());
         return true;
     }
 
-    public boolean replace(String word, String meaning) {
-        if (word.isEmpty() || meaning.isEmpty() || !dictionary.containsKey(word)) {
+    public boolean replaceExistedSlang(String word, String meaning) {
+        if (word.isEmpty() || meaning.isEmpty() || !dictionary.containsKey(word.toUpperCase())) {
             return false;
+        }
+
+        if (!editedWords.containsKey(word.toUpperCase())) {
+            editedWords.put(word.toUpperCase(), dictionary.get(word.toUpperCase()));
         }
 
         dictionary.replace(word, meaning);
         return true;
     }
 
-    public boolean addNewMeaning(String word, String meaning) {
-        if (word.isEmpty() || meaning.isEmpty() || !dictionary.containsKey(word)) {
+    public boolean addNewMeaningToSlang(String word, String meaning) {
+        if (word.isEmpty() || meaning.isEmpty() || !dictionary.containsKey(word.toUpperCase())) {
             return false;
         }
 
-        String newMeaning = dictionary.get(word) + "&&" + meaning;
+        String curMeaning = dictionary.get(word.toUpperCase());
 
-        dictionary.put(word.toUpperCase(), newMeaning);
+        if (!editedWords.containsKey(word.toUpperCase())) {
+            editedWords.put(word.toUpperCase(), curMeaning);
+        }
+
+        dictionary.replace(word.toUpperCase(), curMeaning + "&&" + meaning);
         return true;
     }
 
-    public boolean delete(String word) {
+    public boolean deleteExistedSlang(String word) {
         if (!dictionary.containsKey(word.toUpperCase())) {
             return false;
+        }
+
+        if (!deletedWords.containsKey(word.toUpperCase())) {
+            deletedWords.put(word.toUpperCase(), dictionary.get(word.toUpperCase()));
         }
 
         dictionary.remove(word);
         return true;
     }
 
-    public String search(String word) {
+    public String searchBySlang(String word) {
         if (!dictionary.containsKey(word.toUpperCase())) {
             return null;
+        }
+
+        if (history.size() < 10) {
+            history.add(word);
+        } else {
+            history.remove();
+            history.add(word);
         }
 
         return dictionary.get(word.toUpperCase());
     }
 
+    public String[] searchByMeaning(String meaning) {
+        if (meaning.isEmpty()) {
+            return null;
+        }
+
+        ArrayList<String> result = new ArrayList<>();
+
+        for (String word : dictionary.keySet()) {
+            if (dictionary.get(word).contains(meaning)) {
+                result.add(word);
+            }
+        }
+
+        return result.toArray(new String[result.size()]);
+    }
+
+    public boolean editBySlang(String word, String meaning) {
+        if (word.isEmpty() || meaning.isEmpty() || !dictionary.containsKey(word.toUpperCase())) {
+            return false;
+        }
+
+        dictionary.replace(word.toUpperCase(), meaning);
+        return true;
+    }
+
+    public boolean resetDictionary() {
+        if (dictionary.isEmpty()) {
+            return false;
+        }
+
+        for (String word : addedWords) {
+            dictionary.remove(word);
+        }
+
+        for (String word : deletedWords.keySet()) {
+            dictionary.put(word, deletedWords.get(word));
+        }
+
+        for (String word : editedWords.keySet()) {
+            dictionary.replace(word, editedWords.get(word));
+        }
+
+        return true;
+    }
+
+    public String[] getHistory() {
+        return history.toArray(new String[history.size()]);
+    }
+
     public int getSize() {
         return dictionary.size();
+    }
+
+    public ArrayList<String> getKeySet() {
+        return new ArrayList<>(dictionary.keySet());
     }
 
     public void readFromFile(String filename) {
@@ -104,7 +180,7 @@ public class Dictionary {
                     continue;
                 }
 
-                add(word, meaning);
+                addNewSlang(word, meaning);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,13 +192,11 @@ public class Dictionary {
 
     public void writeToFile(String filename) {
         try {
-            TreeMap<String, String> treeMap = new TreeMap<>(dictionary);
-
             BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
             writer.write("Slag`Meaning\n");
 
-            for (String word : treeMap.keySet()) {
-                String meaning = treeMap.get(word);
+            for (String word : dictionary.keySet()) {
+                String meaning = dictionary.get(word);
                 String anotherMeaning = null;
 
                 if (!meaning.contains("&&")) {
