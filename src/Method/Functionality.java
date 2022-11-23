@@ -79,6 +79,8 @@ public class Functionality {
                 System.out.println("The word you entered is already in the dictionary. " +
                         "\n1. Do you want to add a new meaning to it?" +
                         "\n2. Do you want to replace the old meaning with the new one?");
+                System.out.print("Enter your choice: ");
+                choice = Integer.parseInt(scanner.nextLine());
             } while (choice != 1 && choice != 2);
 
             if (choice == 1) {
@@ -107,7 +109,6 @@ public class Functionality {
         } else {
             System.out.println("The word and meaning you entered have been edited.");
         }
-
     }
 
     public static void deleteSlangFunc(@NotNull Dictionary myDict) {

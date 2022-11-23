@@ -37,7 +37,8 @@ public class Dictionary {
             editedWords.put(word.toUpperCase(), dictionary.get(word.toUpperCase()));
         }
 
-        dictionary.replace(word, meaning);
+        System.out.println("Replace "+dictionary.get(word.toUpperCase())+" with "+meaning);
+        dictionary.replace(word.toUpperCase(), meaning);
         return true;
     }
 
@@ -65,7 +66,7 @@ public class Dictionary {
             deletedWords.put(word.toUpperCase(), dictionary.get(word.toUpperCase()));
         }
 
-        dictionary.remove(word);
+        dictionary.remove(word.toUpperCase());
         return true;
     }
 
@@ -212,7 +213,11 @@ public class Dictionary {
                     anotherMeaning = meaning.substring(0, meaning.indexOf("&"));
                     meaning = meaning.substring(meaning.indexOf("&") + 2);
                     writer.write(anotherMeaning+"\n");
+                    writer.flush();
                 }
+
+                writer.write(meaning+"\n");
+
                 writer.flush();
             }
         } catch (Exception e) {
