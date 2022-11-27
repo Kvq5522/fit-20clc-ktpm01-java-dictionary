@@ -164,8 +164,6 @@ public class Functionality {
         } else {
             System.out.println("The dictionary has been reset.");
         }
-
-        System.out.println("The dictionary has been reset.");
     }
 
     public static void randomSlangFunc(@NotNull Dictionary myDict) {
