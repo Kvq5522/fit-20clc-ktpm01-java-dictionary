@@ -116,16 +116,20 @@ public class Dictionary {
         }
 
         for (String word : addedWords) {
-            dictionary.remove(word);
+            dictionary.remove(word.toUpperCase());
         }
 
         for (String word : deletedWords.keySet()) {
-            dictionary.put(word, deletedWords.get(word));
+            dictionary.put(word.toUpperCase(), deletedWords.get(word.toUpperCase()));
         }
 
         for (String word : editedWords.keySet()) {
-            dictionary.replace(word, editedWords.get(word));
+            dictionary.replace(word.toUpperCase(), editedWords.get(word).toUpperCase());
         }
+
+        addedWords.clear();
+        deletedWords.clear();
+        editedWords.clear();
 
         return true;
     }
@@ -181,7 +185,7 @@ public class Dictionary {
                     continue;
                 }
 
-                addNewSlang(word, meaning);
+                dictionary.put(word, meaning);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -217,7 +221,6 @@ public class Dictionary {
                 }
 
                 writer.write(meaning+"\n");
-
                 writer.flush();
             }
         } catch (Exception e) {
